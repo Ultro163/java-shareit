@@ -5,10 +5,10 @@ import ru.practicum.shareit.request.model.ItemRequest;
 
 public class ItemRequestMapper {
 
-    public static ItemRequestDto mapToItemRequestDto(ItemRequest ItemRequest) {
+    public static ItemRequestDto mapToItemRequestDto(ItemRequest itemRequest) {
         return ItemRequestDto.builder()
-                .id(ItemRequest.getId())
-                .description(ItemRequest.getDescription())
+                .id(itemRequest.getId())
+                .description(itemRequest.getDescription())
                 .build();
     }
 }
