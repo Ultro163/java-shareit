@@ -2,13 +2,12 @@ package ru.practicum.shareit.user.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.erorr.exception.ConflictException;
 import ru.practicum.shareit.erorr.exception.EntityNotFoundException;
-import ru.practicum.shareit.mapper.UserMapper;
-import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -19,42 +18,40 @@ public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
 
     @Override
-    public UserDto getUser(long userId) {
-        log.info("Getting user {}", userId);
-        checkUserExist(userId);
-        return UserMapper.mapToUserDto(users.get(userId));
+    public List<User> getAllUsers() {
+        return new ArrayList<>(users.values());
     }
 
     @Override
-    public UserDto createUser(UserDto userDto) {
-        log.info("Creating new user: {}", userDto);
-        userValidate(userDto);
-        userDto.setId(getNextId());
-        User user = UserMapper.mapToUser(userDto);
+    public User getUser(long userId) {
+        log.info("Getting user {}", userId);
+        if (!users.containsKey(userId)) {
+            throw new EntityNotFoundException("User not found");
+        }
+        return users.get(userId);
+    }
+
+    @Override
+    public User createUser(User user) {
+        user.setId(getNextId());
         users.put(user.getId(), user);
         log.info("Created new user: {}", user);
-        return userDto;
+        return user;
     }
 
     @Override
-    public UserDto updateUser(long userId, UserDto userDto) {
-        log.info("Updating user: {}", userDto);
-        checkUserExist(userId);
-        userValidate(userDto);
-        User user = users.get(userId);
-        Optional<UserDto> optionalUserDto = Optional.of(userDto);
-        optionalUserDto.map(UserDto::getName).ifPresent(user::setName);
-        optionalUserDto.map(UserDto::getEmail).ifPresent(user::setEmail);
-        users.put(userId, user);
-        userDto.setId(userId);
-        log.info("Updated user: {}", user);
-        return userDto;
+    public User updateUser(User updateUser) {
+        User user = users.get(updateUser.getId());
+        Optional<User> optionalUpdateUser = Optional.of(updateUser);
+        optionalUpdateUser.map(User::getName).ifPresent(user::setName);
+        optionalUpdateUser.map(User::getEmail).ifPresent(user::setEmail);
+        users.put(user.getId(), user);
+        log.info("Updated user: {}", updateUser);
+        return user;
     }
 
     @Override
     public void deleteUser(long userId) {
-        log.info("Deleting user: {}", userId);
-        checkUserExist(userId);
         users.remove(userId);
         log.info("Deleted user: {}", userId);
     }
@@ -65,18 +62,5 @@ public class InMemoryUserStorage implements UserStorage {
                 .max()
                 .orElse(0);
         return ++currentId;
-    }
-
-    private void checkUserExist(long userId) {
-        if (!users.containsKey(userId)) {
-            throw new EntityNotFoundException("User not found");
-        }
-    }
-
-    private void userValidate(UserDto userDto) {
-        if (users.values().stream()
-                .anyMatch(user -> user.getEmail() != null && user.getEmail().equals(userDto.getEmail()))) {
-            throw new ConflictException("Email already exists");
-        }
     }
 }
