@@ -8,7 +8,7 @@ import ru.practicum.shareit.erorr.exception.EntityNotFoundException;
 import ru.practicum.shareit.mapper.UserMapper;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.Optional;
 
