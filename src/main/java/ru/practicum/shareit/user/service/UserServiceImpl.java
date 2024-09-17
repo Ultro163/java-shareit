@@ -2,7 +2,6 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.erorr.exception.EntityNotFoundException;
 import ru.practicum.shareit.mapper.UserMapper;
@@ -18,20 +17,21 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public UserDto getUser(long userId) {
         log.info("Get user with id {}", userId);
-        return UserMapper.mapToUserDto(userRepository.findById(userId)
+        return userMapper.mapToUserDto(userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " not found")));
     }
 
     @Override
     public UserDto createUser(UserDto userDto) {
         log.info("Adding user {}", userDto);
-        User user = userRepository.save(UserMapper.mapToUser(userDto));
+        User user = userRepository.save(userMapper.mapToUser(userDto));
         log.info("User saved {}", user);
-        return UserMapper.mapToUserDto(user);
+        return userMapper.mapToUserDto(user);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
         Optional.ofNullable(userDto.getEmail()).ifPresent(user::setEmail);
         user = userRepository.save(user);
         log.info("User updated {}", user);
-        return UserMapper.mapToUserDto(user);
+        return userMapper.mapToUserDto(user);
     }
 
     @Override

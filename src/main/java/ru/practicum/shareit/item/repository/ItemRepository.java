@@ -12,7 +12,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("""
             select i
             from Item as i
-            where (i.name ilike ?1 or i.description ilike ?1)
+            where (i.name ilike concat('%', ?1, '%') or i.description ilike concat('%', ?1, '%'))
             and i.available = true
             """)
     List<Item> searchItemsWithTextFilter(String text);

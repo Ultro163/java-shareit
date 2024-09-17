@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.mapper.ItemMapper;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
     private final UserService userServiceImpl;
+    private final ItemMapper itemMapper;
 
     @Override
     public List<ItemDto> getAllOwnerItems(long userId) {
@@ -30,14 +32,14 @@ public class ItemServiceImpl implements ItemService {
         checkOwnerExist(userId);
         return itemRepository.findByOwnerId(userId)
                 .stream()
-                .map(ItemMapper::mapToItemDto)
+                .map(itemMapper::mapToItemDto)
                 .toList();
     }
 
     @Override
     public ItemDto getItem(long itemId) {
         log.info("Get item with id {}", itemId);
-        return ItemMapper.mapToItemDto(itemRepository.findById(itemId)
+        return itemMapper.mapToItemDto(itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Item not found")));
     }
 
@@ -47,20 +49,20 @@ public class ItemServiceImpl implements ItemService {
         if (text == null || text.isEmpty()) {
             return emptyList();
         }
-        return itemRepository.searchItemsWithTextFilter(text)
+        return itemRepository.searchItemsWithTextFilter(text.trim().toLowerCase())
                 .stream()
-                .map(ItemMapper::mapToItemDto).toList();
+                .map(itemMapper::mapToItemDto).toList();
     }
 
     @Override
     public ItemDto addItem(long userId, ItemDto itemDto) {
         log.info("Adding item {}", itemDto);
-        checkOwnerExist(userId);
-        Item item = ItemMapper.mapToItem(itemDto);
-        item.getOwner().setId(userId);
+        User owner = checkOwnerExist(userId);
+        Item item = itemMapper.mapToItem(itemDto);
+        item.setOwner(owner);
         Item saveItem = itemRepository.save(item);
         log.info("Item saved {}", saveItem);
-        return ItemMapper.mapToItemDto(saveItem);
+        return itemMapper.mapToItemDto(saveItem);
     }
 
     @Override
@@ -76,10 +78,10 @@ public class ItemServiceImpl implements ItemService {
         Optional.ofNullable(itemDto.getAvailable()).ifPresent(item::setAvailable);
         Item saveItem = itemRepository.save(item);
         log.info("Item updated {}", saveItem);
-        return ItemMapper.mapToItemDto(saveItem);
+        return itemMapper.mapToItemDto(saveItem);
     }
 
-    private void checkOwnerExist(long userId) {
-        userServiceImpl.checkUserExist(userId);
+    private User checkOwnerExist(long userId) {
+        return userServiceImpl.checkUserExist(userId);
     }
 }
