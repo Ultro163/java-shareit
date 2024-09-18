@@ -23,10 +23,11 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("""
             select b from Booking b
-            where (b.booker.id = ?1 and b.status = ?2)
-            and (b.start < ?3 and b.end >= ?3)
+            where b.booker.id = ?1
+            and b.start < ?2 and b.end >= ?2
+            order by b.start desc
             """)
-    List<Booking> findByBookerIdAndCurrentTimeOrderByStartDesc(Long bookerId, BookingStatus status, LocalDateTime currentTime);
+    List<Booking> findByBookerIdAndCurrentTime(Long bookerId, LocalDateTime currentTime);
 
     List<Booking> findAllByBookerIdOrderByStartDesc(long bookerId);
 
@@ -40,16 +41,16 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             where (i.owner.id = ?1 and b.status = ?2)
             order by b.start desc
             """)
-    List<Booking> findByOwnerIdAndStatusOrderByStartDesc(long ownerId, BookingStatus status);
+    List<Booking> findByOwnerIdAndStatus(long ownerId, BookingStatus status);
 
     @Query("""
             select b from Booking b
             left join b.item i
-            where (i.owner.id = ?1 and b.status = ?2)
-            and (b.start < ?3 and b.end >= ?3)
+            where i.owner.id = ?1
+            and b.start < ?2 and b.end >= ?2
             order by b.start desc
             """)
-    List<Booking> findByOwnerIdAndCurrentTimeOrderByStartDesc(long ownerId, BookingStatus status, LocalDateTime currentTime);
+    List<Booking> findByOwnerIdAndCurrentTime(long ownerId, LocalDateTime currentTime);
 
     @Query("""
             select b from Booking b
@@ -57,7 +58,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             where (i.owner.id = ?1)
             order by b.start desc
             """)
-    List<Booking> findAllByOwnerIdOrderByStartDesc(long ownerId);
+    List<Booking> findAllByOwnerId(long ownerId);
 
     @Query("""
             select b from Booking b
@@ -65,7 +66,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             where (i.owner.id = ?1 and b.end < ?2)
             order by b.start desc
             """)
-    List<Booking> findAllByOwnerIdAndEndBeforeOrderByStartDesc(long ownerId, LocalDateTime end);
+    List<Booking> findAllByOwnerIdAndEndBefore(long ownerId, LocalDateTime end);
 
     @Query("""
             select b from Booking b
@@ -73,7 +74,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             where (i.owner.id = ?1 and b.start > ?2)
             order by b.start desc
             """)
-    List<Booking> findAllByOwnerIdAndStartAfterOrderByStartDesc(long ownerId, LocalDateTime start);
+    List<Booking> findAllByOwnerIdAndStartAfter(long ownerId, LocalDateTime start);
 
     @Query("""
             select b from Booking b
@@ -92,4 +93,11 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             limit 1
             """)
     Optional<Booking> findNextBookingForItem(long itemId, LocalDateTime localDateTime);
+
+    @Query("""
+            select b from Booking b
+            left join b.item i
+            where (i.id = ?1 and b.booker.id = ?2 and b.end < ?3)
+            """)
+    List<Booking> findNextBookingForItem(long itemId, long bookerId, LocalDateTime localDateTime);
 }

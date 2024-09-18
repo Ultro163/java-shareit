@@ -20,29 +20,29 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public UserDto getUser(long userId) {
+    public User getUser(long userId) {
         log.info("Get user with id {}", userId);
-        return userMapper.mapToUserDto(userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " not found")));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " not found"));
     }
 
     @Override
-    public UserDto createUser(UserDto userDto) {
+    public User createUser(UserDto userDto) {
         log.info("Adding user {}", userDto);
         User user = userRepository.save(userMapper.mapToUser(userDto));
         log.info("User saved {}", user);
-        return userMapper.mapToUserDto(user);
+        return user;
     }
 
     @Override
-    public UserDto updateUser(long userId, UserDto userDto) {
+    public User updateUser(long userId, UserDto userDto) {
         log.info("Updating user {}", userDto);
-        User user = checkUserExist(userId);
+        User user = getUser(userId);
         Optional.ofNullable(userDto.getName()).ifPresent(user::setName);
         Optional.ofNullable(userDto.getEmail()).ifPresent(user::setEmail);
         user = userRepository.save(user);
         log.info("User updated {}", user);
-        return userMapper.mapToUserDto(user);
+        return user;
     }
 
     @Override
@@ -50,10 +50,5 @@ public class UserServiceImpl implements UserService {
         log.info("Deleting user with id {}", userId);
         userRepository.deleteById(userId);
         log.info("User deleted");
-    }
-
-    public User checkUserExist(long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " not found"));
     }
 }
