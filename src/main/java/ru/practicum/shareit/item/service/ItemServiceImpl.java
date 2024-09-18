@@ -3,9 +3,11 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.erorr.exception.EntityNotFoundException;
 import ru.practicum.shareit.erorr.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.mapper.ItemMapper;
@@ -25,22 +27,34 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserService userServiceImpl;
     private final ItemMapper itemMapper;
+    private final BookingService bookingServiceImpl;
 
     @Override
-    public List<ItemDto> getAllOwnerItems(long userId) {
+    public List<ItemWithBookingsDto> getAllOwnerItems(long userId) {
         log.info("Get all items from user {}", userId);
         checkOwnerExist(userId);
         return itemRepository.findByOwnerId(userId)
                 .stream()
-                .map(itemMapper::mapToItemDto)
+                .map(itemMapper::mapToItemWithBookingsDto)
+                .peek(itemWithBookingsDto -> itemWithBookingsDto.setLastBooking(bookingServiceImpl
+                        .getBookingForItem(itemWithBookingsDto.getId(), "last")))
+                .peek(itemWithBookingsDto -> itemWithBookingsDto.setNextBooking(bookingServiceImpl
+                        .getBookingForItem(itemWithBookingsDto.getId(), "next")))
                 .toList();
     }
 
     @Override
-    public ItemDto getItem(long itemId) {
+    public ItemWithBookingsDto getItem(long itemId) {
         log.info("Get item with id {}", itemId);
-        return itemMapper.mapToItemDto(itemRepository.findById(itemId)
+        return itemMapper.mapToItemWithBookingsDto(itemRepository.findById(itemId)
                 .orElseThrow(() -> new EntityNotFoundException("Item not found")));
+
+//        log.info("Get item with id {}", itemId);
+//        ItemWithBookingsDto item = itemMapper.mapToItemWithBookingsDto(itemRepository.findById(itemId)
+//                .orElseThrow(() -> new EntityNotFoundException("Item not found")));
+//        item.setLastBooking(bookingServiceImpl.getBookingForItem(itemId, "last"));
+//        item.setNextBooking(bookingServiceImpl.getBookingForItem(itemId, "next"));
+//        return item;
     }
 
     @Override
