@@ -20,5 +20,6 @@ public class ItemWithBookingsDto {
     private Boolean available;
     private BookingDtoForItem lastBooking;
     private BookingDtoForItem nextBooking;
+    @Builder.Default
     private List<CommentDto> comments = new ArrayList<>();
 }

@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.erorr.exception.EntityNotFoundException;
 import ru.practicum.shareit.mapper.UserMapper;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -14,12 +15,14 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
     @Override
+    @Transactional(readOnly = true)
     public User getUser(long userId) {
         log.info("Get user with id {}", userId);
         return userRepository.findById(userId)

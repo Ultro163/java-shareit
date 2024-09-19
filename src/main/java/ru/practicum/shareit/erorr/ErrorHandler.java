@@ -13,7 +13,6 @@ import ru.practicum.shareit.erorr.exception.EntityNotFoundException;
 import ru.practicum.shareit.erorr.exception.ValidationException;
 import ru.practicum.shareit.erorr.model.ErrorResponse;
 
-
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {

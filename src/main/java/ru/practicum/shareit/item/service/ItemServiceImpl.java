@@ -38,9 +38,11 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
     private final BookingService bookingServiceImpl;
     private final CommentMapper commentMapper;
+    private static final String LAST_BOOKING = "last";
+    private static final String NEXT_BOOKING = "next";
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public List<ItemWithBookingsDto> getAllOwnerItems(long userId) {
         log.info("Get all items from user {}", userId);
         checkOwnerExist(userId);
@@ -49,24 +51,30 @@ public class ItemServiceImpl implements ItemService {
                 .map(itemMapper::mapToItemWithBookingsDto)
                 .toList();
         items.forEach(item -> {
-            item.setLastBooking(bookingServiceImpl.getBookingForItem(item.getId(), "last"));
-            item.setNextBooking(bookingServiceImpl.getBookingForItem(item.getId(), "next"));
+            item.setLastBooking(bookingServiceImpl.getBookingForItem(item.getId(), LAST_BOOKING));
+            item.setNextBooking(bookingServiceImpl.getBookingForItem(item.getId(), NEXT_BOOKING));
         });
         return items;
     }
 
-    @Transactional(readOnly = true)
     @Override
-    public ItemWithBookingsDto getItem(long itemId) {
+    @Transactional(readOnly = true)
+    public ItemWithBookingsDto getItem(long userId, long itemId) {
         log.info("Get item with id {}", itemId);
-        ItemWithBookingsDto item = itemMapper.mapToItemWithBookingsDto(itemRepository.findById(itemId)
-                .orElseThrow(() -> new EntityNotFoundException("Item not found")));
-        item.setComments(commentRepository.findByItemId(itemId).stream().map(commentMapper::mapToCommentDto).toList());
-        return item;
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new EntityNotFoundException("Item not found"));
+        ItemWithBookingsDto itemWithBookingsDto = itemMapper.mapToItemWithBookingsDto(item);
+        if (item.getOwner().getId() == userId) {
+            itemWithBookingsDto.setLastBooking(bookingServiceImpl.getBookingForItem(item.getId(), LAST_BOOKING));
+            itemWithBookingsDto.setNextBooking(bookingServiceImpl.getBookingForItem(item.getId(), NEXT_BOOKING));
+        }
+        itemWithBookingsDto.setComments(commentRepository.findByItemId(itemId)
+                .stream().map(commentMapper::mapToCommentDto).toList());
+        return itemWithBookingsDto;
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(readOnly = true)
     public List<Item> getItemsByText(String text) {
         log.info("Getting items by text {}", text);
         if (text == null || text.isEmpty()) {

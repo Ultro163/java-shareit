@@ -13,11 +13,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.RequestBookingDto;
+import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.erorr.exception.ValidationException;
 import ru.practicum.shareit.mapper.BookingMapper;
 
 import java.util.List;
-
 
 @RestController
 @RequestMapping(path = "/bookings")
@@ -48,15 +49,26 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getAllUserBooking(@RequestHeader("X-Sharer-User-Id") long userId,
                                               @RequestParam(defaultValue = "ALL") String state) {
-        return bookingServiceImpl.getAllUserBooking(userId, state)
+        State bookingState;
+        try {
+            bookingState = State.valueOf(state.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException("Unknown state: " + state);
+        }
+        return bookingServiceImpl.getAllUserBooking(userId, bookingState)
                 .stream().map(bookingMapper::mapToBookingDto).toList();
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getAllOwnerBooking(@RequestHeader("X-Sharer-User-Id") long ownerId,
-                                         @RequestParam(defaultValue = "ALL") String state) {
-        return bookingServiceImpl.getAllOwnerBooking(ownerId, state)
+                                               @RequestParam(defaultValue = "ALL") String state) {
+        State bookingState;
+        try {
+            bookingState = State.valueOf(state.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ValidationException("Unknown state: " + state);
+        }
+        return bookingServiceImpl.getAllOwnerBooking(ownerId, bookingState)
                 .stream().map(bookingMapper::mapToBookingDto).toList();
     }
-
 }

@@ -17,7 +17,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             where (b.booker.id = ?2 and b.id = ?1)
             or (i.owner.id = ?2 and b.id = ?1)
             """)
-    Optional<Booking> getUserBookingById(long bookingId, long userId);
+    Optional<Booking> getUserBookingById(long bookingId, long bookerId);
 
     List<Booking> findByBookerIdAndStatusOrderByStartDesc(long bookerId, BookingStatus status);
 
@@ -27,7 +27,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             and b.start < ?2 and b.end >= ?2
             order by b.start desc
             """)
-    List<Booking> findByBookerIdAndCurrentTime(Long bookerId, LocalDateTime currentTime);
+    List<Booking> findAllByBookerIdAndCurrentTime(Long bookerId, LocalDateTime currentTime);
 
     List<Booking> findAllByBookerIdOrderByStartDesc(long bookerId);
 
@@ -41,7 +41,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             where (i.owner.id = ?1 and b.status = ?2)
             order by b.start desc
             """)
-    List<Booking> findByOwnerIdAndStatus(long ownerId, BookingStatus status);
+    List<Booking> findAllByOwnerIdAndStatus(long ownerId, BookingStatus status);
 
     @Query("""
             select b from Booking b
@@ -50,7 +50,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             and b.start < ?2 and b.end >= ?2
             order by b.start desc
             """)
-    List<Booking> findByOwnerIdAndCurrentTime(long ownerId, LocalDateTime currentTime);
+    List<Booking> findAllByOwnerIdAndCurrentTime(long ownerId, LocalDateTime currentTime);
 
     @Query("""
             select b from Booking b
@@ -78,26 +78,23 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("""
             select b from Booking b
-            left join b.item i
-            where (i.id = ?1 and b.end < ?2)
-            order by b.end desc
+            where (b.item.id = ?1 and b.start < ?2 and b.status != ?3)
+            order by b.start desc
             limit 1
             """)
-    Optional<Booking> findLastBookingForItem(long itemId, LocalDateTime localDateTime);
+    Optional<Booking> findLastBookingForItem(long itemId, LocalDateTime localDateTime, BookingStatus status);
 
     @Query("""
             select b from Booking b
-            left join b.item i
-            where (i.id = ?1 and b.start > ?2)
+            where (b.item.id = ?1 and b.start > ?2 and b.status != ?3)
             order by b.start
             limit 1
             """)
-    Optional<Booking> findNextBookingForItem(long itemId, LocalDateTime localDateTime);
+    Optional<Booking> findNextBookingForItem(long itemId, LocalDateTime localDateTime, BookingStatus status);
 
     @Query("""
             select b from Booking b
-            left join b.item i
-            where (i.id = ?1 and b.booker.id = ?2 and b.end < ?3)
+            where (b.item.id = ?1 and b.booker.id = ?2 and b.end < ?3)
             """)
-    List<Booking> findNextBookingForItem(long itemId, long bookerId, LocalDateTime localDateTime);
+    List<Booking> findBookingForComment(long itemId, long bookerId, LocalDateTime localDateTime);
 }

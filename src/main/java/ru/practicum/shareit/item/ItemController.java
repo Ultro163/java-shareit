@@ -20,9 +20,6 @@ import ru.practicum.shareit.mapper.ItemMapper;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -38,8 +35,8 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemWithBookingsDto getItem(@PathVariable long itemId) {
-        return itemServiceImpl.getItem(itemId);
+    public ItemWithBookingsDto getItem(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId) {
+        return itemServiceImpl.getItem(userId, itemId);
     }
 
     @GetMapping("/search")

@@ -24,7 +24,6 @@ import ru.practicum.shareit.user.model.User;
 @EqualsAndHashCode(of = "id")
 @ToString
 public class Item {
-
     @Id
     @Column(name = "item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
