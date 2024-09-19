@@ -46,7 +46,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemWithBookingsDto> getAllOwnerItems(long userId) {
         log.info("Get all items from user {}", userId);
         checkOwnerExist(userId);
-        List<ItemWithBookingsDto> items = itemRepository.findByOwnerId(userId)
+        List<ItemWithBookingsDto> items = itemRepository.findByOwnerIdOrderByIdAsc(userId)
                 .stream()
                 .map(itemMapper::mapToItemWithBookingsDto)
                 .toList();
