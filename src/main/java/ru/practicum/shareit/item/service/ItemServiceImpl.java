@@ -51,12 +51,14 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional(readOnly = true)
     public List<ItemWithBookingsDto> getAllOwnerItems(long userId) {
+        log.info("Get all items from user {}", userId);
         List<ItemWithBookingsDto> items = itemRepository.findByOwnerIdOrderByIdAsc(userId)
                 .stream()
                 .map(itemMapper::mapToItemWithBookingsDto)
                 .toList();
 
         if (items.isEmpty()) {
+            log.info("No items found for user {}", userId);
             return items;
         }
 
@@ -64,36 +66,53 @@ public class ItemServiceImpl implements ItemService {
                 .map(ItemWithBookingsDto::getId)
                 .collect(Collectors.toList());
 
-        Map<Long, List<Booking>> bookingsByItemId = bookingServiceImpl.getBookingsForItems(itemIds);
+        Map<Long, List<BookingDtoForItem>> bookingDtoByItemId = getBookingsForItems(itemIds);
+        Map<Long, List<CommentDto>> allComments = getCommentsForItems(itemIds);
 
-        Map<Long, List<BookingDtoForItem>> bookingDtoByItemId = bookingsByItemId.entrySet().stream()
+        items.forEach(item -> {
+            List<BookingDtoForItem> bookings = Optional.ofNullable(bookingDtoByItemId.get(item.getId()))
+                    .orElse(Collections.emptyList());
+            List<CommentDto> comments = Optional.ofNullable(allComments.get(item.getId()))
+                    .orElse(Collections.emptyList());
+
+            item.setLastBooking(findBooking(bookings, true));
+            item.setNextBooking(findBooking(bookings, false));
+            item.setComments(comments);
+        });
+
+        return items;
+    }
+
+    private Map<Long, List<BookingDtoForItem>> getBookingsForItems(List<Long> itemIds) {
+        Map<Long, List<Booking>> bookingsByItemId = bookingServiceImpl.getBookingsForItems(itemIds);
+        return bookingsByItemId.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         entry -> entry.getValue().stream()
                                 .map(bookingMapper::mapToBookingDtoForItem)
                                 .collect(Collectors.toList())
                 ));
-
-        items.forEach(item -> {
-            List<BookingDtoForItem> bookings = bookingDtoByItemId.getOrDefault(item.getId(), Collections.emptyList());
-            item.setLastBooking(findLastBooking(bookings));
-            item.setNextBooking(findNextBooking(bookings));
-        });
-        return items;
     }
 
-    private BookingDtoForItem findLastBooking(List<BookingDtoForItem> bookings) {
-        return bookings.stream()
-                .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
-                .max(Comparator.comparing(BookingDtoForItem::getEnd))
-                .orElse(null);
+    private Map<Long, List<CommentDto>> getCommentsForItems(List<Long> itemIds) {
+        return commentRepository.findAllByItemId(itemIds)
+                .stream()
+                .map(commentMapper::mapToCommentDto)
+                .collect(Collectors.groupingBy(CommentDto::getItemId));
     }
 
-    private BookingDtoForItem findNextBooking(List<BookingDtoForItem> bookings) {
-        return bookings.stream()
-                .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
-                .min(Comparator.comparing(BookingDtoForItem::getStart))
-                .orElse(null);
+    private BookingDtoForItem findBooking(List<BookingDtoForItem> bookings, boolean last) {
+        if (last) {
+            return bookings.stream()
+                    .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
+                    .max(Comparator.comparing(BookingDtoForItem::getEnd))
+                    .orElse(null);
+        } else {
+            return bookings.stream()
+                    .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
+                    .min(Comparator.comparing(BookingDtoForItem::getStart))
+                    .orElse(null);
+        }
     }
 
     @Override
