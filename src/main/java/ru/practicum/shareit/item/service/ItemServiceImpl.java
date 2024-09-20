@@ -23,6 +23,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,10 @@ public class ItemServiceImpl implements ItemService {
                 .map(itemMapper::mapToItemWithBookingsDto)
                 .toList();
 
+        if (items.isEmpty()) {
+            return items;
+        }
+
         List<Long> itemIds = items.stream()
                 .map(ItemWithBookingsDto::getId)
                 .collect(Collectors.toList());
@@ -70,22 +75,25 @@ public class ItemServiceImpl implements ItemService {
                 ));
 
         items.forEach(item -> {
-            List<BookingDtoForItem> bookings = bookingDtoByItemId.get(item.getId());
-            if (bookings == null) {
-                item.setLastBooking(null);
-                item.setNextBooking(null);
-            } else {
-                item.setLastBooking(bookings.stream()
-                        .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
-                        .max(Comparator.comparing(BookingDtoForItem::getEnd))
-                        .orElse(null));
-                item.setNextBooking(bookings.stream()
-                        .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
-                        .min(Comparator.comparing(BookingDtoForItem::getStart))
-                        .orElse(null));
-            }
+            List<BookingDtoForItem> bookings = bookingDtoByItemId.getOrDefault(item.getId(), Collections.emptyList());
+            item.setLastBooking(findLastBooking(bookings));
+            item.setNextBooking(findNextBooking(bookings));
         });
         return items;
+    }
+
+    private BookingDtoForItem findLastBooking(List<BookingDtoForItem> bookings) {
+        return bookings.stream()
+                .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
+                .max(Comparator.comparing(BookingDtoForItem::getEnd))
+                .orElse(null);
+    }
+
+    private BookingDtoForItem findNextBooking(List<BookingDtoForItem> bookings) {
+        return bookings.stream()
+                .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
+                .min(Comparator.comparing(BookingDtoForItem::getStart))
+                .orElse(null);
     }
 
     @Override
