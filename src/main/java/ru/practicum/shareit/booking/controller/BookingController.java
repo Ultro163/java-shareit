@@ -15,7 +15,6 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.RequestBookingDto;
 import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.erorr.exception.ValidationException;
 import ru.practicum.shareit.mapper.BookingMapper;
 
 import java.util.List;
@@ -49,26 +48,16 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> getAllUserBooking(@RequestHeader("X-Sharer-User-Id") long userId,
                                               @RequestParam(defaultValue = "ALL") String state) {
-        State bookingState;
-        try {
-            bookingState = State.valueOf(state.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new ValidationException("Unknown state: " + state);
-        }
-        return bookingServiceImpl.getAllUserBooking(userId, bookingState)
+        State stateEnum = State.fromString(state.toUpperCase());
+        return bookingServiceImpl.getAllUserBooking(userId, stateEnum)
                 .stream().map(bookingMapper::mapToBookingDto).toList();
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getAllOwnerBooking(@RequestHeader("X-Sharer-User-Id") long ownerId,
                                                @RequestParam(defaultValue = "ALL") String state) {
-        State bookingState;
-        try {
-            bookingState = State.valueOf(state.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new ValidationException("Unknown state: " + state);
-        }
-        return bookingServiceImpl.getAllOwnerBooking(ownerId, bookingState)
+        State stateEnum = State.fromString(state.toUpperCase());
+        return bookingServiceImpl.getAllOwnerBooking(ownerId, stateEnum)
                 .stream().map(bookingMapper::mapToBookingDto).toList();
     }
 }

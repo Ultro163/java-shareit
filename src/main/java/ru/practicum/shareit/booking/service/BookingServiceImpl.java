@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -101,7 +99,6 @@ public class BookingServiceImpl implements BookingService {
                     LocalDateTime.now());
             case FUTURE -> bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId,
                     LocalDateTime.now());
-            case null -> emptyList();
         };
     }
 
@@ -119,7 +116,6 @@ public class BookingServiceImpl implements BookingService {
                     LocalDateTime.now());
             case FUTURE -> bookingRepository.findAllByOwnerIdAndStartAfter(ownerId,
                     LocalDateTime.now());
-            case null -> emptyList();
         };
     }
 
