@@ -6,6 +6,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.State;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BookingService {
 
@@ -20,6 +21,8 @@ public interface BookingService {
     List<Booking> getAllOwnerBooking(long ownerId, State state);
 
     BookingDtoForItem getBookingForItem(long itemId, String booking);
+
+    Map<Long, List<Booking>> getBookingsForItems(List<Long> itemIds);
 
     List<Booking> getBookingsForComment(long itemId, long bookerId);
 }

@@ -21,6 +21,8 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
@@ -133,6 +135,11 @@ public class BookingServiceImpl implements BookingService {
             default -> null;
         };
         return bookingMapper.mapToBookingDtoForItem(bookingForItem);
+    }
+
+    public Map<Long, List<Booking>> getBookingsForItems(List<Long> itemIds) {
+        List<Booking> bookings = bookingRepository.findByItemIdIn(itemIds, BookingStatus.REJECTED);
+        return bookings.stream().collect(Collectors.groupingBy(Booking::getItemId));
     }
 
     @Override

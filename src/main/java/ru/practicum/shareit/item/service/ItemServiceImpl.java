@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.dto.BookingDtoForItem;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.erorr.exception.EntityNotFoundException;
@@ -15,14 +16,18 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.mapper.BookingMapper;
 import ru.practicum.shareit.mapper.CommentMapper;
 import ru.practicum.shareit.mapper.ItemMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
@@ -38,21 +43,47 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
     private final BookingService bookingServiceImpl;
     private final CommentMapper commentMapper;
+    private final BookingMapper bookingMapper;
     private static final String LAST_BOOKING = "last";
     private static final String NEXT_BOOKING = "next";
 
     @Override
     @Transactional(readOnly = true)
     public List<ItemWithBookingsDto> getAllOwnerItems(long userId) {
-        log.info("Get all items from user {}", userId);
-        checkOwnerExist(userId);
         List<ItemWithBookingsDto> items = itemRepository.findByOwnerIdOrderByIdAsc(userId)
                 .stream()
                 .map(itemMapper::mapToItemWithBookingsDto)
                 .toList();
+
+        List<Long> itemIds = items.stream()
+                .map(ItemWithBookingsDto::getId)
+                .collect(Collectors.toList());
+
+        Map<Long, List<Booking>> bookingsByItemId = bookingServiceImpl.getBookingsForItems(itemIds);
+
+        Map<Long, List<BookingDtoForItem>> bookingDtoByItemId = bookingsByItemId.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .map(bookingMapper::mapToBookingDtoForItem)
+                                .collect(Collectors.toList())
+                ));
+
         items.forEach(item -> {
-            item.setLastBooking(bookingServiceImpl.getBookingForItem(item.getId(), LAST_BOOKING));
-            item.setNextBooking(bookingServiceImpl.getBookingForItem(item.getId(), NEXT_BOOKING));
+            List<BookingDtoForItem> bookings = bookingDtoByItemId.get(item.getId());
+            if (bookings == null) {
+                item.setLastBooking(null);
+                item.setNextBooking(null);
+            } else {
+                item.setLastBooking(bookings.stream()
+                        .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
+                        .max(Comparator.comparing(BookingDtoForItem::getEnd))
+                        .orElse(null));
+                item.setNextBooking(bookings.stream()
+                        .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
+                        .min(Comparator.comparing(BookingDtoForItem::getStart))
+                        .orElse(null));
+            }
         });
         return items;
     }

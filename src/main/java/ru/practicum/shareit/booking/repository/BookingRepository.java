@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 
@@ -97,4 +98,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             where (b.item.id = ?1 and b.booker.id = ?2 and b.end < ?3)
             """)
     List<Booking> findBookingForComment(long itemId, long bookerId, LocalDateTime localDateTime);
+
+    @Query("""
+            SELECT b FROM Booking b
+            WHERE b.item.id IN :itemIds and b.status != :status
+            """)
+    List<Booking> findByItemIdIn(@Param("itemIds") List<Long> itemIds, @Param("status") BookingStatus status);
 }

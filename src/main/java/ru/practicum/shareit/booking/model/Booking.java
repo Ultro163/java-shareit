@@ -43,4 +43,8 @@ public class Booking {
     private User booker;
     @Enumerated(value = EnumType.STRING)
     private BookingStatus status;
+
+    public Long getItemId() {
+        return this.getItem().getId();
+    }
 }
