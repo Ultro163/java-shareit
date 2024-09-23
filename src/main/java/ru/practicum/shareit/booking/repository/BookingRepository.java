@@ -1,5 +1,7 @@
 package ru.practicum.shareit.booking.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,7 +32,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             """)
     List<Booking> findAllByBookerIdAndCurrentTime(Long bookerId, LocalDateTime currentTime);
 
-    List<Booking> findAllByBookerIdOrderByStartDesc(long bookerId);
+    Page<Booking> findAllByBookerIdOrderByStartDesc(long bookerId, Pageable page);
 
     List<Booking> findAllByBookerIdAndEndBeforeOrderByStartDesc(long bookerId, LocalDateTime end);
 
@@ -59,7 +61,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             where (i.owner.id = ?1)
             order by b.start desc
             """)
-    List<Booking> findAllByOwnerId(long ownerId);
+    Page<Booking> findAllByOwnerIdOrderByStartDesc(long ownerId, Pageable page);
 
     @Query("""
             select b from Booking b
@@ -104,4 +106,5 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             WHERE b.item.id IN :itemIds and b.status != :status
             """)
     List<Booking> findByItemIdIn(@Param("itemIds") List<Long> itemIds, @Param("status") BookingStatus status);
+
 }

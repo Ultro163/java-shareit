@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -47,17 +48,21 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getAllUserBooking(@RequestHeader("X-Sharer-User-Id") long userId,
-                                              @RequestParam(defaultValue = "ALL") String state) {
+                                              @RequestParam(defaultValue = "ALL") String state,
+                                              @Positive @RequestParam(required = false) Integer from,
+                                              @Positive @RequestParam(required = false) Integer size) {
         State stateEnum = State.fromString(state.toUpperCase());
-        return bookingServiceImpl.getAllUserBooking(userId, stateEnum)
+        return bookingServiceImpl.getAllUserBooking(userId, stateEnum, from, size)
                 .stream().map(bookingMapper::mapToBookingDto).toList();
     }
 
     @GetMapping("/owner")
     public List<BookingDto> getAllOwnerBooking(@RequestHeader("X-Sharer-User-Id") long ownerId,
-                                               @RequestParam(defaultValue = "ALL") String state) {
+                                               @RequestParam(defaultValue = "ALL") String state,
+                                               @Positive @RequestParam(required = false) Integer from,
+                                               @Positive @RequestParam(required = false) Integer size) {
         State stateEnum = State.fromString(state.toUpperCase());
-        return bookingServiceImpl.getAllOwnerBooking(ownerId, stateEnum)
+        return bookingServiceImpl.getAllOwnerBooking(ownerId, stateEnum, from, size)
                 .stream().map(bookingMapper::mapToBookingDto).toList();
     }
 }

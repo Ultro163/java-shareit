@@ -2,6 +2,10 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDtoForItem;
@@ -86,15 +90,21 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Booking> getAllUserBooking(long userId, State state) {
+    public List<Booking> getAllUserBooking(long userId, State state, Integer from, Integer size) {
         log.info("Get all bookings for user ID {} with state {}", userId, state);
         userServiceImpl.getUser(userId);
+        Pageable pageable = (from != null && size != null)
+                ? PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"))
+                : Pageable.unpaged();
         return switch (state) {
             case WAITING -> bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
             case REJECTED -> bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
             case CURRENT -> bookingRepository.findAllByBookerIdAndCurrentTime(userId,
                     LocalDateTime.now());
-            case ALL -> bookingRepository.findAllByBookerIdOrderByStartDesc(userId);
+            case ALL -> {
+                Page<Booking> bookingsPage = bookingRepository.findAllByBookerIdOrderByStartDesc(userId, pageable);
+                yield bookingsPage.getContent();
+            }
             case PAST -> bookingRepository.findAllByBookerIdAndEndBeforeOrderByStartDesc(userId,
                     LocalDateTime.now());
             case FUTURE -> bookingRepository.findAllByBookerIdAndStartAfterOrderByStartDesc(userId,
@@ -104,14 +114,20 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Booking> getAllOwnerBooking(long ownerId, State state) {
+    public List<Booking> getAllOwnerBooking(long ownerId, State state, Integer from, Integer size) {
         log.info("Get all bookings for owner ID {} with state {}", ownerId, state);
         userServiceImpl.getUser(ownerId);
+        Pageable pageable = (from != null && size != null)
+                ? PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "start"))
+                : Pageable.unpaged();
         return switch (state) {
             case WAITING -> bookingRepository.findAllByOwnerIdAndStatus(ownerId, BookingStatus.WAITING);
             case REJECTED -> bookingRepository.findAllByOwnerIdAndStatus(ownerId, BookingStatus.REJECTED);
             case CURRENT -> bookingRepository.findAllByOwnerIdAndCurrentTime(ownerId, LocalDateTime.now());
-            case ALL -> bookingRepository.findAllByOwnerId(ownerId);
+            case ALL -> {
+                Page<Booking> bookingsPage = bookingRepository.findAllByOwnerIdOrderByStartDesc(ownerId, pageable);
+                yield bookingsPage.getContent();
+            }
             case PAST -> bookingRepository.findAllByOwnerIdAndEndBefore(ownerId,
                     LocalDateTime.now());
             case FUTURE -> bookingRepository.findAllByOwnerIdAndStartAfter(ownerId,
