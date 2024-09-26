@@ -120,6 +120,14 @@
 							<version>1.5.5.Final</version>
 						</path>
 					</annotationProcessorPaths>
+					<compilerArgs>
+						<arg>
+							-Amapstruct.defaultComponentModel=spring
+						</arg>
+						<arg>
+							-Amapstruct.unmappedTargetPolicy=IGNORE
+						</arg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
 		</plugins>
