@@ -1,26 +1,16 @@
 package ru.practicum.shareit.mapper;
 
+import org.mapstruct.Mapper;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
 import ru.practicum.shareit.item.model.Item;
 
-public class ItemMapper {
+@Mapper
+public interface ItemMapper {
 
-    public static ItemDto mapToItemDto(Item item) {
-        return ItemDto.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                //.request(item.getRequest() != null ? item.getRequest().getId() : null)
-                .build();
-    }
+    ItemDto mapToItemDto(Item item);
 
-    public static Item mapToItem(ItemDto itemDto) {
-        return Item.builder()
-                .id(itemDto.getId())
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.getAvailable())
-                .build();
-    }
+    Item mapToItem(ItemDto itemDto);
+
+    ItemWithBookingsDto mapToItemWithBookingsDto(Item item);
 }
