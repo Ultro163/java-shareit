@@ -1,13 +1,13 @@
 package ru.practicum.shareit.request;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.mapper.ItemRequestMapper;
+import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 
@@ -17,15 +17,11 @@ import ru.practicum.shareit.request.service.ItemRequestService;
 public class ItemRequestController {
 
     private final ItemRequestService itemRequestService;
+    private final ItemRequestMapper itemRequestMapper;
 
-
-    @GetMapping("/{id}")
-    public ItemRequest getOne(@PathVariable Long id) {
-        return itemRequestService.getOne(id);
-    }
 
     @PostMapping
-    public ItemRequest create(@RequestBody ItemRequest itemRequest) {
-        return itemRequestService.create(itemRequest);
+    public ItemRequestDto create(@RequestHeader("X-Sharer-User-Id") long userId, @RequestBody ItemRequestDto dto) {
+        return itemRequestMapper.mapToItemRequestDto(itemRequestService.create(userId, dto));
     }
 }
