@@ -19,15 +19,15 @@ services:
     depends_on:
       - db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5433/shareit
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/shareit
       - SPRING_DATASOURCE_USERNAME=ultro
       - SPRING_DATASOURCE_PASSWORD=163163
 
   db:
     image: postgres:16.1
-    container_name: postgres
+    container_name: postgres-shareIt
     ports:
-      - "6541:5433"
+      - "5433:5432"
     environment:
       - POSTGRES_PASSWORD=163163
       - POSTGRES_USER=ultro

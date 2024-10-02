@@ -39,8 +39,8 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> getItemsByText(@RequestParam String text) {
-        return itemServiceImpl.getItemsByText(text).stream().map(itemMapper::mapToItemDto).toList();
+    public List<ItemDto> getItemsByText(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam String text) {
+        return itemServiceImpl.getItemsByText(userId, text).stream().map(itemMapper::mapToItemDto).toList();
     }
 
     @PostMapping

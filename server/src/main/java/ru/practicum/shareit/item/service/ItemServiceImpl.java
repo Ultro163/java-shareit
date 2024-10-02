@@ -19,6 +19,8 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.mapper.BookingMapper;
 import ru.practicum.shareit.mapper.CommentMapper;
 import ru.practicum.shareit.mapper.ItemMapper;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -41,6 +43,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final CommentRepository commentRepository;
     private final UserService userServiceImpl;
+    private final ItemRequestService itemRequestServiceImpl;
     private final ItemMapper itemMapper;
     private final BookingService bookingServiceImpl;
     private final CommentMapper commentMapper;
@@ -133,8 +136,9 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Item> getItemsByText(String text) {
+    public List<Item> getItemsByText(long userId, String text) {
         log.info("Getting items by text {}", text);
+        checkOwnerExist(userId);
         if (text == null || text.isEmpty()) {
             return emptyList();
         }
@@ -145,8 +149,10 @@ public class ItemServiceImpl implements ItemService {
     public Item addItem(long userId, ItemDto itemDto) {
         log.info("Adding item {}", itemDto);
         User owner = userServiceImpl.getUser(userId);
+        ItemRequest itemRequest = itemRequestServiceImpl.getRequestById(owner.getId(), itemDto.getRequestId());
         Item item = itemMapper.mapToItem(itemDto);
         item.setOwner(owner);
+        item.setRequest(itemRequest);
         Item saveItem = itemRepository.save(item);
         log.info("Item saved {}", saveItem);
         return saveItem;
