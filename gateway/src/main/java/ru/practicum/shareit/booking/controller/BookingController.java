@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +37,7 @@ public class BookingController {
         return bookingClient.handleBookingApproval(userId, bookingId, approved);
     }
 
-    @GetMapping("{bookingId}")
+    @GetMapping("/{bookingId}")
     public ResponseEntity<Object> getUserBookingById(@RequestHeader("X-Sharer-User-Id") long userId,
                                                      @PathVariable long bookingId) {
         return bookingClient.getUserBookingById(userId, bookingId);
@@ -44,18 +45,18 @@ public class BookingController {
 
     @GetMapping
     public ResponseEntity<Object> getAllUserBooking(@RequestHeader("X-Sharer-User-Id") long userId,
-                                                    @RequestParam(defaultValue = "ALL") String state,
-                                                    @Positive @RequestParam(required = false) Integer from,
-                                                    @Positive @RequestParam(required = false) Integer size) {
+                                                    @RequestParam(name = "state", defaultValue = "all") String state,
+                                                    @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                    @Positive @RequestParam(name = "size", defaultValue = "100") Integer size) {
         State stateEnum = State.fromString(state.toUpperCase());
         return bookingClient.getAllUserBooking(userId, stateEnum, from, size);
     }
 
     @GetMapping("/owner")
     public ResponseEntity<Object> getAllOwnerBooking(@RequestHeader("X-Sharer-User-Id") long ownerId,
-                                                     @RequestParam(defaultValue = "ALL") String state,
-                                                     @Positive @RequestParam(required = false) Integer from,
-                                                     @Positive @RequestParam(required = false) Integer size) {
+                                                     @RequestParam(name = "state", defaultValue = "all") String state,
+                                                     @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                                     @Positive @RequestParam(name = "size", defaultValue = "100") Integer size) {
         State stateEnum = State.fromString(state.toUpperCase());
         return bookingClient.getAllOwnerBooking(ownerId, stateEnum, from, size);
     }

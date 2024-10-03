@@ -51,11 +51,14 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     @Override
-    public ItemRequest getRequestById(long userId, long requestId) {
+    public ItemRequestDto getRequestByIdWithItems(long userId, long requestId) {
         log.info("Get ItemRequest with ID {}", requestId);
         getRequestor(userId);
-        return itemRequestRepository
-                .findById(requestId).orElseThrow(() -> new EntityNotFoundException("Request not found"));
+        ItemRequestDto itemRequest = itemRequestMapper.mapToItemRequestDto(itemRequestRepository
+                .findById(requestId).orElseThrow(() -> new EntityNotFoundException("Request not found")));
+        itemRequest.setItems(itemRepository.findAllByRequestId(requestId)
+                .stream().map(itemMapper::mapToItemDto).toList());
+        return itemRequest;
     }
 
     @Override
@@ -84,12 +87,18 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         return requests;
     }
 
+    @Override
+    public ItemRequest getRequestById(long userId, long requestId) {
+        return itemRequestRepository
+                .findById(requestId).orElseThrow(() -> new EntityNotFoundException("Request not found"));
+    }
+
     private User getRequestor(long userId) {
         return userServiceImpl.getUser(userId);
     }
 
     private Map<Long, List<ItemDto>> toReceiveItemsForRequest(List<Long> requestId) {
-        return itemRepository.findAllByRequestId(requestId)
+        return itemRepository.findAllByRequestIds(requestId)
                 .stream().map(itemMapper::mapToItemDto)
                 .collect(Collectors.groupingBy(ItemDto::getRequestId));
     }

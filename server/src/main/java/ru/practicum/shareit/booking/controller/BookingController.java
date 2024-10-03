@@ -38,7 +38,7 @@ public class BookingController {
         return bookingMapper.mapToBookingDto(bookingServiceImpl.handleBookingApproval(userId, bookingId, approved));
     }
 
-    @GetMapping("{bookingId}")
+    @GetMapping("/{bookingId}")
     public BookingDto getUserBookingById(@RequestHeader("X-Sharer-User-Id") long userId,
                                          @PathVariable long bookingId) {
         return bookingMapper.mapToBookingDto(bookingServiceImpl.getUserBookingById(userId, bookingId));

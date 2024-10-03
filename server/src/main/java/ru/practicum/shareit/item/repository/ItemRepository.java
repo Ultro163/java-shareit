@@ -23,5 +23,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             from Item as i
             where i.request.id IN :requestId
             """)
-    List<Item> findAllByRequestId(@Param("requestId") List<Long> requestId);
+    List<Item> findAllByRequestIds(@Param("requestId") List<Long> requestId);
+
+    List<Item> findAllByRequestId(long requestId);
 }

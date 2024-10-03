@@ -30,7 +30,7 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ResponseEntity<Object> getItem(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId) {
-        return itemClient.getItem(itemId, userId);
+        return itemClient.getItem(userId, itemId);
     }
 
     @GetMapping("/search")

@@ -149,10 +149,12 @@ public class ItemServiceImpl implements ItemService {
     public Item addItem(long userId, ItemDto itemDto) {
         log.info("Adding item {}", itemDto);
         User owner = userServiceImpl.getUser(userId);
-        ItemRequest itemRequest = itemRequestServiceImpl.getRequestById(owner.getId(), itemDto.getRequestId());
         Item item = itemMapper.mapToItem(itemDto);
+        if (itemDto.getRequestId() != null) {
+            ItemRequest itemRequest =  itemRequestServiceImpl.getRequestById(owner.getId(), itemDto.getRequestId());
+            item.setRequest(itemRequest);
+        }
         item.setOwner(owner);
-        item.setRequest(itemRequest);
         Item saveItem = itemRepository.save(item);
         log.info("Item saved {}", saveItem);
         return saveItem;
