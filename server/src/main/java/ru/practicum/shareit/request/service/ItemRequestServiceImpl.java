@@ -117,7 +117,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         });
     }
 
-    private List<ItemRequestDto> getRequestsForUser(long userId, Pageable pageable) {
+    private List<ItemRequestDto>  getRequestsForUser(long userId, Pageable pageable) {
         return itemRequestRepository.findAllByRequestorIdOrderByCreatedDesc(userId, pageable)
                 .stream()
                 .map(itemRequestMapper::mapToItemRequestDto)
