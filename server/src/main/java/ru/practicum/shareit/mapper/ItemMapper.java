@@ -9,7 +9,7 @@ import ru.practicum.shareit.item.model.Item;
 @Mapper
 public interface ItemMapper {
 
-    @Mapping(target = "requestId" , source = "request.id")
+    @Mapping(target = "requestId", source = "request.id")
     ItemDto mapToItemDto(Item item);
 
     Item mapToItem(ItemDto itemDto);
