@@ -7,7 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.RequestBookingDto;
 import ru.practicum.shareit.booking.dto.State;
@@ -16,9 +18,12 @@ import ru.practicum.shareit.booking.service.BookingClient;
 import java.time.LocalDateTime;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -146,11 +151,18 @@ public class BookingControllerTest {
     @Test
     @SneakyThrows
     public void createBookingWithValidData() {
+
+        RequestBookingDto expectedBooking = RequestBookingDto.builder().build();
+        expectedBooking.setItemId(1L);
+        when(bookingClient.addBooking(anyLong(), any(RequestBookingDto.class)))
+                .thenReturn(new ResponseEntity<>(expectedBooking, HttpStatus.OK));
+
         mockMvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", "1")
                         .content(mapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.itemId").value(1L))
                 .andDo(print());
 
         verify(bookingClient, times(1)).addBooking(1L, dto);

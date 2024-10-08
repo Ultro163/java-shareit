@@ -20,9 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class UserServiceImplIntegrationTest {
-
-    @Autowired
-    private UserServiceImpl userService;
+    private final UserServiceImpl userService;
 
     private User createdUser;
 
