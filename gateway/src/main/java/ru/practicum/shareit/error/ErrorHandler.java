@@ -10,7 +10,6 @@ import ru.practicum.shareit.error.exception.ValidationException;
 
 import java.util.Map;
 
-
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
@@ -31,7 +30,5 @@ public class ErrorHandler {
             errorMessage = e.getMessage();
             return new ResponseEntity<>(Map.of("error", errorMessage), HttpStatus.BAD_REQUEST);
         }
-
-
     }
 }

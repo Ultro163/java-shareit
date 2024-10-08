@@ -1,6 +1,8 @@
 package ru.practicum.shareit.request.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -19,23 +21,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest({ItemRequestController.class, ItemRequestMapper.class})
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemRequestControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
+    private final MockMvc mockMvc;
+    private final ObjectMapper mapper;
     @MockBean
     private ItemRequestService itemRequestService;
-
-    @Autowired
-    private ObjectMapper mapper;
 
     private final ItemRequestDto dto = ItemRequestDto.builder()
             .description("test")
             .build();
 
     @Test
-    public void getRequestByIdWithItems() throws Exception {
+    @SneakyThrows
+    public void getRequestByIdWithItems() {
         mockMvc.perform(get("/requests/{1}", "1")
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())
@@ -45,7 +45,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    public void getAllRequests() throws Exception {
+    @SneakyThrows
+    public void getAllRequests() {
         mockMvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())
@@ -55,7 +56,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    public void getUserRequests() throws Exception {
+    @SneakyThrows
+    public void getUserRequests() {
         mockMvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())
@@ -65,7 +67,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    public void create() throws Exception {
+    @SneakyThrows
+    public void create() {
 
         mockMvc.perform(post("/requests")
                         .header("X-Sharer-User-Id", "0")

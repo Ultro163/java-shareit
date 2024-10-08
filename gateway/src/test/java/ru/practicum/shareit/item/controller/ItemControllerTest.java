@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,16 +24,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest({ItemController.class})
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
+    private final MockMvc mockMvc;
+    private final ObjectMapper mapper;
     @MockBean
     private ItemClient itemClient;
-
-    @Autowired
-    ObjectMapper mapper;
 
     private final ItemDto dto = ItemDto.builder()
             .id(1L)
@@ -49,7 +48,8 @@ public class ItemControllerTest {
             .build();
 
     @Test
-    public void getAllOwnerItemsWithStatusOk() throws Exception {
+    @SneakyThrows
+    public void getAllOwnerItemsWithStatusOk() {
         mockMvc.perform(get("/items")
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())
@@ -59,7 +59,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void getItemWithValidDataWithStatusOk() throws Exception {
+    @SneakyThrows
+    public void getItemWithValidDataWithStatusOk() {
         mockMvc.perform(get("/items/{itemId}", 1L)
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())
@@ -69,7 +70,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void getItemsByTextWithValidDataWithStatusOk() throws Exception {
+    @SneakyThrows
+    public void getItemsByTextWithValidDataWithStatusOk() {
         mockMvc.perform(get("/items/search")
                         .header("X-Sharer-User-Id", "0")
                         .param("text", "test"))
@@ -80,7 +82,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void getItemsByEmptyTextWithStatusOk() throws Exception {
+    @SneakyThrows
+    public void getItemsByEmptyTextWithStatusOk() {
         mockMvc.perform(get("/items/search")
                         .header("X-Sharer-User-Id", "0")
                         .param("text", ""))
@@ -91,7 +94,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void addItemWithValidDataWithStatusOk() throws Exception {
+    @SneakyThrows
+    public void addItemWithValidDataWithStatusOk() {
         mockMvc.perform(post("/items")
                         .header("X-Sharer-User-Id", "0")
                         .content(mapper.writeValueAsString(dto))
@@ -104,7 +108,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void addItemWithoutNameWithStatusBadRequest() throws Exception {
+    @SneakyThrows
+    public void addItemWithoutNameWithStatusBadRequest() {
         ItemDto noNameDto = ItemDto.builder()
                 .id(1L)
                 .description("test")
@@ -123,7 +128,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void addCommentWithValidDataWithStatusOk() throws Exception {
+    @SneakyThrows
+    public void addCommentWithValidDataWithStatusOk() {
         mockMvc.perform(post("/items/{itemId}/comment", 1L)
                         .header("X-Sharer-User-Id", "0")
                         .content(mapper.writeValueAsString(commentDto))
@@ -136,7 +142,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void addCommentWithoutTextWithStatusBadRequest() throws Exception {
+    @SneakyThrows
+    public void addCommentWithoutTextWithStatusBadRequest() {
         CommentDto noTextComment = CommentDto.builder()
                 .id(1L)
                 .text(null)
@@ -155,7 +162,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void updateItemWithValidDataWithStatusOk() throws Exception {
+    @SneakyThrows
+    public void updateItemWithValidDataWithStatusOk() {
         mockMvc.perform(patch("/items/{itemId}", 1L)
                         .header("X-Sharer-User-Id", "0")
                         .content(mapper.writeValueAsString(dto))

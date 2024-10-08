@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -25,16 +27,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest({BookingController.class})
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class BookingControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
+    private final MockMvc mockMvc;
+    private final ObjectMapper mapper;
     @MockBean
     private BookingClient bookingClient;
-
-    @Autowired
-    private ObjectMapper mapper;
 
     private final RequestBookingDto dto = RequestBookingDto.builder()
             .itemId(1L)
@@ -43,7 +42,8 @@ public class BookingControllerTest {
             .build();
 
     @Test
-    public void getAllOwnerBookingsWithValidUserId() throws Exception {
+    @SneakyThrows
+    public void getAllOwnerBookingsWithValidUserId() {
         mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", "1"))
                 .andExpect(status().isOk())
@@ -53,7 +53,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void getAllOwnerBookingsWithoutUserIdWithBadRequest() throws Exception {
+    @SneakyThrows
+    public void getAllOwnerBookingsWithoutUserIdWithBadRequest() {
         mockMvc.perform(get("/bookings/owner"))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
@@ -62,7 +63,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void getAllUserBookingsWithValidUserId() throws Exception {
+    @SneakyThrows
+    public void getAllUserBookingsWithValidUserId() {
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", "1"))
                 .andExpect(status().isOk())
@@ -72,7 +74,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void getAllUserBookingsWithUnknownStateWithBadRequest() throws Exception {
+    @SneakyThrows
+    public void getAllUserBookingsWithUnknownStateWithBadRequest() {
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", "1")
                         .param("state", "UNKNOWN_STATUS"))
@@ -84,7 +87,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void getAllOwnerBookingsWithUnknownStateWithBadRequest() throws Exception {
+    @SneakyThrows
+    public void getAllOwnerBookingsWithUnknownStateWithBadRequest() {
         mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", "1")
                         .param("state", "UNKNOWN_STATUS"))
@@ -96,7 +100,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void getUserBookingByIdWithValidUserId() throws Exception {
+    @SneakyThrows
+    public void getUserBookingByIdWithValidUserId() {
         mockMvc.perform(get("/bookings/{bookingId}", 1L)
                         .header("X-Sharer-User-Id", "1"))
                 .andExpect(status().isOk())
@@ -106,7 +111,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void getUserBookingByIdWithoutUserIdWithBadRequest() throws Exception {
+    @SneakyThrows
+    public void getUserBookingByIdWithoutUserIdWithBadRequest() {
         mockMvc.perform(get("/bookings/{bookingId}", 1L))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
@@ -115,7 +121,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void approveBookingWithValidRequest() throws Exception {
+    @SneakyThrows
+    public void approveBookingWithValidRequest() {
         mockMvc.perform(patch("/bookings/{bookingId}", 1L)
                         .header("X-Sharer-User-Id", "1")
                         .param("approved", "true"))
@@ -126,7 +133,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void approveBookingWithoutUserIdWithBadRequest() throws Exception {
+    @SneakyThrows
+    public void approveBookingWithoutUserIdWithBadRequest() {
         mockMvc.perform(patch("/bookings/{bookingId}", 1L)
                         .param("approved", "true"))
                 .andExpect(status().isBadRequest())
@@ -136,7 +144,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void createBookingWithValidData() throws Exception {
+    @SneakyThrows
+    public void createBookingWithValidData() {
         mockMvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", "1")
                         .content(mapper.writeValueAsString(dto))
@@ -148,7 +157,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void createBookingWithoutUserIdWithBadRequest() throws Exception {
+    @SneakyThrows
+    public void createBookingWithoutUserIdWithBadRequest() {
         mockMvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -159,7 +169,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void createBookingWithInvalidStartData() throws Exception {
+    @SneakyThrows
+    public void createBookingWithInvalidStartData() {
         final RequestBookingDto invalidStartDto = RequestBookingDto.builder()
                 .itemId(1L)
                 .start(LocalDateTime.of(2021, 1, 7, 0, 0, 0))
@@ -179,7 +190,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void createBookingWithInvalidEndData() throws Exception {
+    @SneakyThrows
+    public void createBookingWithInvalidEndData() {
         final RequestBookingDto invalidStartDto = RequestBookingDto.builder()
                 .itemId(1L)
                 .start(LocalDateTime.of(2026, 1, 7, 0, 0, 0))
@@ -199,7 +211,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void createBookingStartAndEndDataEquals() throws Exception {
+    @SneakyThrows
+    public void createBookingStartAndEndDataEquals() {
         final RequestBookingDto invalidStartDto = RequestBookingDto.builder()
                 .itemId(1L)
                 .start(LocalDateTime.of(2026, 1, 7, 0, 0, 0))
@@ -219,7 +232,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void createBookingStartIsBeforeEndDataEquals() throws Exception {
+    @SneakyThrows
+    public void createBookingStartIsBeforeEndDataEquals() {
         final RequestBookingDto invalidStartDto = RequestBookingDto.builder()
                 .itemId(1L)
                 .start(LocalDateTime.of(2027, 1, 7, 0, 0, 0))
@@ -239,7 +253,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void createBookingWithoutStartAndEndTime() throws Exception {
+    @SneakyThrows
+    public void createBookingWithoutStartAndEndTime() {
         final RequestBookingDto invalidStartDto = RequestBookingDto.builder()
                 .itemId(1L)
                 .build();

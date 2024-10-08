@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.service;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,19 +31,14 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 @Transactional
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 class ItemServiceImplIntegrationTest {
 
-    @Autowired
-    private ItemService itemService;
-
-    @Autowired
-    private ItemRepository itemRepository;
-
+    private final ItemService itemService;
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
     @MockBean
-    private BookingService bookingServiceImpl;
-
-    @Autowired
-    private UserRepository userRepository;
+    private final BookingService bookingServiceImpl;
 
     private User owner;
     private Item item;

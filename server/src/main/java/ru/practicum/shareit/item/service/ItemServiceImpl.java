@@ -87,6 +87,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private Map<Long, List<BookingDtoForItem>> getBookingsForItems(List<Long> itemIds) {
+        log.debug("Get bookings for items {}", itemIds);
         Map<Long, List<Booking>> bookingsByItemId = bookingServiceImpl.getBookingsForItems(itemIds);
         return bookingsByItemId.entrySet().stream()
                 .collect(Collectors.toMap(
@@ -98,6 +99,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private Map<Long, List<CommentDto>> getCommentsForItems(List<Long> itemIds) {
+        log.debug("Get comments for items {}", itemIds);
         return commentRepository.findAllByItemId(itemIds)
                 .stream()
                 .map(commentMapper::mapToCommentDto)
@@ -105,6 +107,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private BookingDtoForItem findBooking(List<BookingDtoForItem> bookings, boolean last) {
+        log.debug("Find next or previous bookings for items");
         if (last) {
             return bookings.stream()
                     .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
@@ -151,7 +154,7 @@ public class ItemServiceImpl implements ItemService {
         User owner = userServiceImpl.getUser(userId);
         Item item = itemMapper.mapToItem(itemDto);
         if (itemDto.getRequestId() != null) {
-            ItemRequest itemRequest =  itemRequestServiceImpl.getRequestById(owner.getId(), itemDto.getRequestId());
+            ItemRequest itemRequest = itemRequestServiceImpl.getRequestById(owner.getId(), itemDto.getRequestId());
             item.setRequest(itemRequest);
         }
         item.setOwner(owner);
@@ -196,6 +199,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void checkOwnerExist(long userId) {
+        log.debug("Checking if owner is exist ID {}", userId);
         userServiceImpl.getUser(userId);
     }
 }

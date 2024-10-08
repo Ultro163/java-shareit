@@ -1,6 +1,8 @@
 package ru.practicum.shareit.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -22,16 +24,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest({UserController.class})
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserControllerTest {
 
-    @Autowired
-    private MockMvc mvc;
-
+    private final MockMvc mvc;
+    private final ObjectMapper mapper;
     @MockBean
     private UserClient userClient;
-
-    @Autowired
-    private ObjectMapper mapper;
 
     private final UserDto dto = UserDto.builder()
             .id(1L)
@@ -40,7 +39,8 @@ public class UserControllerTest {
             .build();
 
     @Test
-    public void deleteUserWithValidIdWithStatusOk() throws Exception {
+    @SneakyThrows
+    public void deleteUserWithValidIdWithStatusOk() {
         mvc.perform(delete("/users/{userId}", 1L))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -49,7 +49,8 @@ public class UserControllerTest {
     }
 
     @Test
-    public void updateUserWithValidDataWithStatusOk() throws Exception {
+    @SneakyThrows
+    public void updateUserWithValidDataWithStatusOk() {
         UserDto updateDto = UserDto.builder()
                 .name("updatedName")
                 .email("updated@test.ru")
@@ -66,7 +67,8 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUserWithValidDataWithStatusOk() throws Exception {
+    @SneakyThrows
+    public void createUserWithValidDataWithStatusOk() {
         mvc.perform(post("/users")
                         .content(mapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -78,7 +80,8 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUserWithoutNameWithStatusBadRequest() throws Exception {
+    @SneakyThrows
+    public void createUserWithoutNameWithStatusBadRequest() {
         UserDto noNameDto = UserDto.builder()
                 .email("test@test.ru")
                 .build();
@@ -93,7 +96,8 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUserWithoutEmailWithStatusBadRequest() throws Exception {
+    @SneakyThrows
+    public void createUserWithoutEmailWithStatusBadRequest() {
         UserDto noEmailDto = UserDto.builder()
                 .name("noEmail")
                 .build();
@@ -108,7 +112,8 @@ public class UserControllerTest {
     }
 
     @Test
-    public void getUserWithValidIdWithStatusOk() throws Exception {
+    @SneakyThrows
+    public void getUserWithValidIdWithStatusOk() {
         mvc.perform(get("/users/{userId}", 1L))
                 .andExpect(status().isOk())
                 .andDo(print());

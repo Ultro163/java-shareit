@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -23,16 +25,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest({BookingController.class, BookingMapper.class})
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class BookingControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
+    private final MockMvc mockMvc;
+    private final ObjectMapper mapper;
     @MockBean
     private BookingService bookingService;
-
-    @Autowired
-    private ObjectMapper mapper;
 
     private final RequestBookingDto dto = RequestBookingDto.builder()
             .itemId(1L)
@@ -41,7 +40,8 @@ public class BookingControllerTest {
             .build();
 
     @Test
-    public void addBooking() throws Exception {
+    @SneakyThrows
+    public void addBooking() {
 
         mockMvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", "1")
@@ -53,7 +53,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void handleBookingApproval() throws Exception {
+    @SneakyThrows
+    public void handleBookingApproval() {
         mockMvc.perform(patch("/bookings/{1}", "1")
                         .header("X-Sharer-User-Id", "0")
                         .param("approved", "false"))
@@ -63,7 +64,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void getUserBookingById() throws Exception {
+    @SneakyThrows
+    public void getUserBookingById() {
         mockMvc.perform(get("/bookings/{1}", "1")
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())
@@ -73,7 +75,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void getAllUserBooking() throws Exception {
+    @SneakyThrows
+    public void getAllUserBooking() {
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())
@@ -83,7 +86,8 @@ public class BookingControllerTest {
     }
 
     @Test
-    public void getAllOwnerBooking() throws Exception {
+    @SneakyThrows
+    public void getAllOwnerBooking() {
         mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())

@@ -1,9 +1,10 @@
 package ru.practicum.shareit.item.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -23,15 +24,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest({ItemController.class, ItemMapper.class, CommentMapper.class})
-@AutoConfigureWebMvc
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    ObjectMapper mapper;
-
+    private final MockMvc mockMvc;
+    private final ObjectMapper mapper;
     @MockBean
     private ItemService itemServiceImpl;
 
@@ -52,7 +49,8 @@ public class ItemControllerTest {
 
 
     @Test
-    public void getAllOwnerItems() throws Exception {
+    @SneakyThrows
+    public void getAllOwnerItems() {
         mockMvc.perform(get("/items")
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())
@@ -62,7 +60,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void getItem() throws Exception {
+    @SneakyThrows
+    public void getItem() {
         mockMvc.perform(get("/items/{1}", "1")
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())
@@ -72,7 +71,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void getItemsByText() throws Exception {
+    @SneakyThrows
+    public void getItemsByText() {
         mockMvc.perform(get("/items/search")
                         .header("X-Sharer-User-Id", "0")
                         .param("text", ""))
@@ -83,7 +83,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void addItem() throws Exception {
+    @SneakyThrows
+    public void addItem() {
 
         mockMvc.perform(post("/items")
                         .header("X-Sharer-User-Id", "0")
@@ -96,7 +97,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void addComment() throws Exception {
+    @SneakyThrows
+    public void addComment() {
 
         mockMvc.perform(post("/items/{1}/comment", "1")
                         .header("X-Sharer-User-Id", "0")
@@ -109,7 +111,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void updateItem() throws Exception {
+    @SneakyThrows
+    public void updateItem() {
 
         mockMvc.perform(patch("/items/{1}", "1")
                         .header("X-Sharer-User-Id", "0")

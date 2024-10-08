@@ -1,6 +1,8 @@
 package ru.practicum.shareit.request.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -20,23 +22,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest({ItemRequestController.class})
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemRequestControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
+    private final MockMvc mockMvc;
+    private final ObjectMapper mapper;
     @MockBean
     private ItemRequestClient itemRequestClient;
-
-    @Autowired
-    private ObjectMapper mapper;
 
     private final ItemRequestDto dto = ItemRequestDto.builder()
             .description("test")
             .build();
 
     @Test
-    void createRequestWithoutDescriptionWithStatusBadRequest() throws Exception {
+    @SneakyThrows
+    void createRequestWithoutDescriptionWithStatusBadRequest() {
         ItemRequestDto noDescription = ItemRequestDto.builder()
                 .description(null)
                 .build();
@@ -53,7 +53,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void createRequestWithEmptyDescriptionWithStatusBadRequest() throws Exception {
+    @SneakyThrows
+    void createRequestWithEmptyDescriptionWithStatusBadRequest() {
         ItemRequestDto emptyDescription = ItemRequestDto.builder()
                 .description("")
                 .build();
@@ -70,7 +71,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void createRequestWithValidDataWithStatusOk() throws Exception {
+    @SneakyThrows
+    void createRequestWithValidDataWithStatusOk() {
         mockMvc.perform(post("/requests")
                         .header("X-Sharer-User-Id", "1")
                         .content(mapper.writeValueAsString(dto))
@@ -84,7 +86,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void getUserRequestsWithValidUserIdWithStatusOk() throws Exception {
+    @SneakyThrows
+    void getUserRequestsWithValidUserIdWithStatusOk() {
         mockMvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", "1"))
                 .andExpect(status().isOk())
@@ -94,7 +97,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void getUserRequestsWithoutUserIdWithStatusBadRequest() throws Exception {
+    @SneakyThrows
+    void getUserRequestsWithoutUserIdWithStatusBadRequest() {
         mockMvc.perform(get("/requests"))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
@@ -104,7 +108,8 @@ public class ItemRequestControllerTest {
 
 
     @Test
-    void getAllRequestsWithValidUserIdWithStatusOk() throws Exception {
+    @SneakyThrows
+    void getAllRequestsWithValidUserIdWithStatusOk() {
         mockMvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", "1")
                         .param("from", "0")
@@ -116,7 +121,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void getAllRequestsWithoutUserIdWithStatusBadRequest() throws Exception {
+    @SneakyThrows
+    void getAllRequestsWithoutUserIdWithStatusBadRequest() {
         mockMvc.perform(get("/requests/all"))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
@@ -125,7 +131,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void getRequestByIdWithValidDataWithStatusOk() throws Exception {
+    @SneakyThrows
+    void getRequestByIdWithValidDataWithStatusOk() {
         mockMvc.perform(get("/requests/{requestId}", 1L)
                         .header("X-Sharer-User-Id", "1"))
                 .andExpect(status().isOk())
@@ -135,7 +142,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void getRequestByIdWithoutUserIdWithStatusBadRequest() throws Exception {
+    @SneakyThrows
+    void getRequestByIdWithoutUserIdWithStatusBadRequest() {
         mockMvc.perform(get("/requests/{requestId}", 1L))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
@@ -144,7 +152,8 @@ public class ItemRequestControllerTest {
     }
 
     @Test
-    void getRequestByIdWithoutRequestIdWithStatusBadRequest() throws Exception {
+    @SneakyThrows
+    void getRequestByIdWithoutRequestIdWithStatusBadRequest() {
         mockMvc.perform(get("/requests/" + null)
                         .header("X-Sharer-User-Id", "1"))
                 .andExpect(status().isBadRequest())

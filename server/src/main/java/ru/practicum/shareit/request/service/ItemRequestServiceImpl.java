@@ -89,27 +89,32 @@ public class ItemRequestServiceImpl implements ItemRequestService {
 
     @Override
     public ItemRequest getRequestById(long userId, long requestId) {
+        log.info("Get Request with ID {}", requestId);
         return itemRequestRepository
                 .findById(requestId).orElseThrow(() -> new EntityNotFoundException("Request not found"));
     }
 
     private User getRequestor(long userId) {
+        log.debug("Get User requestor with ID {}", userId);
         return userServiceImpl.getUser(userId);
     }
 
     private Map<Long, List<ItemDto>> toReceiveItemsForRequest(List<Long> requestId) {
+        log.debug("Get Requests for requestListId {}", requestId);
         return itemRepository.findAllByRequestIds(requestId)
                 .stream().map(itemMapper::mapToItemDto)
                 .collect(Collectors.groupingBy(ItemDto::getRequestId));
     }
 
     private List<Long> extractRequestIds(List<ItemRequestDto> requests) {
+        log.debug("Extract ID requests for requestListId {}", requests);
         return requests.stream()
                 .map(ItemRequestDto::getId)
                 .toList();
     }
 
     private void setItemsForRequests(List<ItemRequestDto> requests, Map<Long, List<ItemDto>> itemDtoForRequest) {
+        log.debug("Set Items for requests {}", requests);
         requests.forEach(itemRequestDto -> {
             List<ItemDto> items = Optional.ofNullable(itemDtoForRequest.get(itemRequestDto.getId()))
                     .orElse(Collections.emptyList());
@@ -117,7 +122,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         });
     }
 
-    private List<ItemRequestDto>  getRequestsForUser(long userId, Pageable pageable) {
+    private List<ItemRequestDto> getRequestsForUser(long userId, Pageable pageable) {
+        log.debug("Get Requests for user with ID {}", userId);
         return itemRequestRepository.findAllByRequestorIdOrderByCreatedDesc(userId, pageable)
                 .stream()
                 .map(itemRequestMapper::mapToItemRequestDto)
@@ -125,6 +131,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     private List<ItemRequestDto> getRequestsFromOtherUsers(long userId, Pageable pageable) {
+        log.debug("Receive requests for other user");
         return itemRequestRepository
                 .findAllByRequestorIdNotOrderByCreatedDesc(userId, pageable).stream()
                 .map(itemRequestMapper::mapToItemRequestDto)
@@ -132,6 +139,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     }
 
     private Pageable createPageable(Integer from, Integer size, Sort sort) {
+        log.debug("Create Pageable from {}, size {}", from, size);
         if (from != null && size != null) {
             return PageRequest.of(from / size, size, sort);
         }
