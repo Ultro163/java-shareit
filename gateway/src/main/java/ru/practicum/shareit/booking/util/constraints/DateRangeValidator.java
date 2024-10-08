@@ -21,6 +21,7 @@ public class DateRangeValidator implements ConstraintValidator<ValidDateRange, R
         if (bookingDto == null || bookingDto.getStart() == null || bookingDto.getEnd() == null) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("Start and end dates cannot be null")
+                    .addPropertyNode("start, end")
                     .addConstraintViolation();
             return false;
         }

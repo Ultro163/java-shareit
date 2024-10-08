@@ -14,6 +14,8 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.mapper.CommentMapper;
 import ru.practicum.shareit.mapper.ItemMapper;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -55,14 +57,18 @@ public class ItemControllerTest {
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+        verify(itemServiceImpl, times(1)).getAllOwnerItems(0L);
     }
 
     @Test
     public void getItem() throws Exception {
-        mockMvc.perform(get("/items/{0}", "0")
+        mockMvc.perform(get("/items/{1}", "1")
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+        verify(itemServiceImpl, times(1)).getItem(0L, 1L);
     }
 
     @Test
@@ -72,6 +78,8 @@ public class ItemControllerTest {
                         .param("text", ""))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+        verify(itemServiceImpl, times(1)).getItemsByText(0L, "");
     }
 
     @Test
@@ -83,27 +91,33 @@ public class ItemControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+        verify(itemServiceImpl, times(1)).addItem(0L, dto);
     }
 
     @Test
     public void addComment() throws Exception {
 
-        mockMvc.perform(post("/items/{0}/comment", "0")
+        mockMvc.perform(post("/items/{1}/comment", "1")
                         .header("X-Sharer-User-Id", "0")
                         .content(mapper.writeValueAsString(commentDto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+        verify(itemServiceImpl, times(1)).addComment(0L, 1L, commentDto);
     }
 
     @Test
     public void updateItem() throws Exception {
 
-        mockMvc.perform(patch("/items/{0}", "0")
+        mockMvc.perform(patch("/items/{1}", "1")
                         .header("X-Sharer-User-Id", "0")
                         .content(mapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+        verify(itemServiceImpl, times(1)).updateItem(0L, 1L, dto);
     }
 }

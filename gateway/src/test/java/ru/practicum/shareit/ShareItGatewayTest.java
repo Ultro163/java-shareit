@@ -6,14 +6,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @SpringBootTest
-class ShareItTests {
+class ShareItGatewayTest {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
-	@Test
-	void mainTest() {
-		assertDoesNotThrow(() -> ShareItServer.main(new String[]{}));
-	}
+    @Test
+    void mainTest() {
+        assertDoesNotThrow(() -> ShareItGateway.main(new String[]{}));
+    }
 }

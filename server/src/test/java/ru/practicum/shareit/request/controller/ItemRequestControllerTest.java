@@ -11,6 +11,8 @@ import ru.practicum.shareit.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -34,10 +36,12 @@ public class ItemRequestControllerTest {
 
     @Test
     public void getRequestByIdWithItems() throws Exception {
-        mockMvc.perform(get("/requests/{0}", "0")
+        mockMvc.perform(get("/requests/{1}", "1")
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+        verify(itemRequestService, times(1)).getRequestByIdWithItems(0L, 1L);
     }
 
     @Test
@@ -46,6 +50,8 @@ public class ItemRequestControllerTest {
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+        verify(itemRequestService, times(1)).getAllRequests(0L, null, null);
     }
 
     @Test
@@ -54,6 +60,8 @@ public class ItemRequestControllerTest {
                         .header("X-Sharer-User-Id", "0"))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+        verify(itemRequestService, times(1)).getUserRequests(0L, null, null);
     }
 
     @Test
@@ -65,7 +73,7 @@ public class ItemRequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
+
+        verify(itemRequestService, times(1)).create(0L, dto);
     }
-
-
 }
